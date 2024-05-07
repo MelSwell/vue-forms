@@ -13,7 +13,7 @@
     </select>
 
     <label>Skills</label>
-    <ul v-if="skills.length">
+    <ul class="skills" v-if="skills.length">
       <li v-for="skill in skills" key="skills.indexOf(skill)">
         {{ skill }}
         <i class="fa fa-trash" @click="deleteSkill"></i>
@@ -56,14 +56,13 @@ export default {
           } 
         }
       }
-      this.skills.push(this.tempSkill.trim())
+      this.skills.push(this.tempSkill.toUpperCase().trim())
       this.tempSkill = ''
       this.error = ''
     },
     deleteSkill(e) {
-      const skill = e.target.parentElement.innerText.trim()
+      const skill = e.target.parentElement.innerText.toUpperCase().trim()
       const idx = this.skills.indexOf(skill)
-      console.log(idx > -1)
       if (idx > -1) {
         this.skills.splice(idx, 1)
       }
@@ -109,7 +108,13 @@ export default {
   #error {
     color: red;
   }
-  i.fa-trash:hover{
+  i.fa-trash:hover {
     cursor: pointer;
+  }
+  ul.skills {
+    margin-top: 0px;
+    text-transform: uppercase;
+    font-size: .9em;
+    font-weight: bold;
   }
 </style>
