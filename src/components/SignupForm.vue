@@ -1,9 +1,10 @@
 <template>
-  <form>
+  <form @submit.prevent="handleSubmit">
     <label>Email</label>
     <input type="email" required v-model="email">
     
     <label>Password</label>
+    <p class="error" v-if="passwordError">{{ passwordError }}</p>
     <input type="password" required v-model="password">
     
     <label>Role</label>
@@ -13,18 +14,23 @@
     </select>
 
     <label>Skills</label>
+    <p class="error" v-if="skillsError">{{ skillsError }}</p>
+    <input type="text" v-model="tempSkill" @keydown.tab="addSkill">
+    <br>
     <ul class="skills" v-if="skills.length">
-      <li v-for="skill in skills" key="skills.indexOf(skill)">
+      <li v-for="skill in skills" :key="skill">
         {{ skill }}
         <i class="fa fa-trash" @click="deleteSkill"></i>
       </li>
     </ul>
-    <p id="error" v-if="error">{{ error }}</p>
-    <input type="text" v-model="tempSkill" @keyup.enter="addSkill">
 
     <div class="terms">
       <input type="checkbox" required v-model="termsAccepted">
       <label>Accept terms and conditions</label>
+    </div>
+
+    <div class="submit">
+      <button>Create Account</button>
     </div>
   </form>
 </template>
@@ -39,32 +45,46 @@ export default {
       termsAccepted: false,
       tempSkill: '',
       skills: [],
-      error: ''
+      skillsError: '',
+      passwordError: ''
     }
   },
   methods: {
     addSkill() {
       if (!this.tempSkill) {
-        this.error = 'Cannot submit empty values!'
+        this.skillsError = 'Cannot submit empty values!'
         return
       }
       if (this.skills.length > 0) {
         for (const skill of this.skills) {
           if (skill.toUpperCase() === this.tempSkill.toUpperCase()) {
-            this.error = `You've already added that skill!`
+            this.skillsError = `You've already added that skill!`
             return
           } 
         }
       }
       this.skills.push(this.tempSkill.toUpperCase().trim())
       this.tempSkill = ''
-      this.error = ''
+      this.skillsError = ''
     },
     deleteSkill(e) {
       const skill = e.target.parentElement.innerText.toUpperCase().trim()
       const idx = this.skills.indexOf(skill)
       if (idx > -1) {
         this.skills.splice(idx, 1)
+      }
+    },
+    handleSubmit() {
+      this.passwordError = this.password.length > 5 ? 
+        '' : 'Password must at least 6 characters long'
+        
+      if (!this.passwordError && !this.skillsError) {
+        // POST to server
+        console.log('email: ', this.email)
+        console.log('pasword: ', this.password)
+        console.log('role: ', this.role)
+        console.log('terms: ', this.termsAccepted)
+        console.log('skills: ', this.skills)
       }
     }
   }
@@ -105,8 +125,11 @@ export default {
     position: relative;
     top: 2px; 
   }
-  #error {
+  p.error {
     color: red;
+    font-size: 12px;
+    letter-spacing: 1px;
+    font-weight: bold;
   }
   i.fa-trash:hover {
     cursor: pointer;
@@ -116,5 +139,35 @@ export default {
     text-transform: uppercase;
     font-size: .9em;
     font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    padding-left: 20px;
+  }
+  ul.skills li {
+    padding: 6px 12px;
+    font-size: 12px;
+    letter-spacing: 1px;
+    font-weight: bold;
+    color: #777;
+    list-style-type: none;
+    background-color: #eee;
+    border-radius: 20px;
+    width: fit-content;
+    margin-bottom: 5px;
+    align-self: flex-start;
+  }
+  .terms label{
+    margin-top: 10px;
+  }
+  button {
+    background: #06bdff;
+    border: 0;
+    padding: 10px 20px;
+    margin-top: 20px;
+    color: white;
+    border-radius: 20px;
+  }
+  .submit {
+    text-align: center;
   }
 </style>
